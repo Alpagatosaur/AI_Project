@@ -129,7 +129,6 @@ dmypy.json
 .pyre/
 
 # Folder
-train_test/*
 data_img/*
 Dataset/*
 

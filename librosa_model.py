@@ -4,27 +4,21 @@ import glob
 import sklearn
 import numpy as np
 
+import librosa.display
 import librosa
 import splitfolders
 from PIL import Image
-from keras.applications.vgg16 import VGG16
 from keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
-
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from methods import load_img, train_model
 
 image_size = 100
 MIN_IMGS_IN_CLASS=500
 
-#Build array image
-n_fft=2040
-hop_length=512
+#Build array image spectrogram
 n_mels=128
-fmin=20
-fmax=8000
-top_db=80
 
-list_classes = ["cat","dog", "owl"] # = [0, 1, 2]
+list_classes = ["bird", "cat", "cricket", "dog"] # = [0, 1, 2, etc.]
 nb_classes = len(list_classes)
 
 # PATH
@@ -60,12 +54,28 @@ if not os.path.exists(img_dir):
             mel = librosa.feature.melspectrogram(wave_data, sr=wave_rate, n_mels=n_mels)
             db = librosa.power_to_db(mel)
             normalised_db = sklearn.preprocessing.minmax_scale(db)
+            
+            """
+            First test, acc not well
+            cmap = plt.get_cmap('hot')
+            librosa.display.specshow(normalised_db, cmap=cmap)
+            file_temp = path_output + "/" + "temp.png"
+            plt.savefig(file_temp, transparent=True)
+            cvimage = cv2.imread(file_temp)
+            img_gray = cv2.cvtColor(cvimage, cv2.COLOR_BGR2GRAY)
+            cv2.imwrite(path_output + "/" + list_classes[int_class] + cptNom + ".png", img_gray)
+            
+            os.remove(file_temp)
+            """
+
             db_array = (np.asarray(normalised_db)*255).astype(np.uint8)
+
             db_image =  Image.fromarray(np.array([db_array, db_array, db_array]).T)
             db_image.save(path_output + "/" + list_classes[int_class] + cptNom + ".png")
+
             cpt += 1
 
-
+# If test train folder dont exist
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
     # To only split into training and validation set, set a tuple to `ratio`, i.e, `(.8, .2)`.
@@ -86,15 +96,14 @@ train_img, train_labels = load_img(list_train_img)
 
 # Create the model
 model = Sequential()
-model.add(VGG16(weights='imagenet', include_top=False, input_shape=(image_size, image_size,3)))
-model.add(Conv2D(16, 3, padding='same', activation='relu'))
+# model.add(VGG16(weights='imagenet', include_top=False, input_shape=(image_size, image_size,3)))
+model.add(Conv2D(32, 3, padding='same', activation='tanh', input_shape=(image_size, image_size,3)))
 model.add(MaxPooling2D(padding='same'))
-model.add(Conv2D(32, 3, padding='same', activation='relu'))
+model.add(Conv2D(64, 3, padding='same', activation='tanh'))
 model.add(MaxPooling2D(padding='same'))
-model.add(Conv2D(64, 3, padding='same', activation='relu'))
-model.add(MaxPooling2D(padding='same'))
+model.add(Dropout(0.1))
 model.add(Flatten())
-model.add(Dense(1024, activation='relu'))
+model.add(Dense(1024, activation='tanh'))
 model.add(Dense(nb_classes, activation='softmax'))
 
 

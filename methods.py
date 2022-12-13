@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt
-import os
-from keras.applications.vgg16 import VGG16
-
 import numpy as np
 
-from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Dense, Flatten, BatchNormalization
-from keras.models import Sequential
 import cv2
-import glob
-import splitfolders
+
 
 image_size = 100
 learning_rate = 0.0001
@@ -61,26 +54,21 @@ def train_model(model, train_img, train_labels):
 
     history = model.fit(train_img, train_labels,
                         batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=0.2, shuffle = True, verbose=1)
-    #loss: 2.1762 - accuracy: 0.1870 - val_loss: 2.6660 - val_accuracy: 0.1656
-    #loss: 1.6501 - accuracy: 0.3529 - val_loss: 3.1875 - val_accuracy: 0.1885
-    #loss: 1.0064 - accuracy: 0.5773 - val_loss: 1.9096 - val_accuracy: 0.3829
-    #loss: 0.4988 - accuracy: 0.8185 - val_loss: 6.1963 - val_accuracy: 0.4919
-    #loss: 0.2163 - accuracy: 0.9337 - val_loss: 1.0803 - val_accuracy: 0.6834
-    model.summary()
+
+    # model.summary()
     model.save('model.h5')
 
     # Show evolution of accurracy/ loss depending on epoch
-    plt.figure(figsize=(12, 12))
-    plt.subplot(3, 2, 1)
-    plt.plot(history.history['accuracy'], label = 'train_accuracy')
-    plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
-    plt.xlabel('epoch')
-    plt.ylabel('accuracy')
+    fig, (ax0, ax1) = plt.subplots(2, sharex=True)
+    ax0.plot(history.history['accuracy'], label = 'train_accuracy')
+    ax0.plot(history.history['val_accuracy'], label = 'val_accuracy')
+    ax0.set_xlabel('epoch')
+    ax0.set_ylabel('accuracy')
     plt.legend()
-    plt.subplot(3, 2, 2)
-    plt.plot(history.history['loss'], label = 'train_loss')
-    plt.plot(history.history['val_loss'], label = 'val_loss')
-    plt.xlabel('epoch')
-    plt.ylabel('accuracy')
+
+    ax1.plot(history.history['loss'], label = 'train_loss')
+    ax1.plot(history.history['val_loss'], label = 'val_loss')
+    ax1.set_xlabel('epoch')
+    ax1.set_ylabel('loss')
     plt.legend()
     plt.show()
