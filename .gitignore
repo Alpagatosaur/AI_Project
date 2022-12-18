@@ -134,3 +134,5 @@ Dataset/*
 
 # Model
 *.h5
+
+*.png
