@@ -30,51 +30,52 @@ data_dir = os.path.join(path_file, 'Dataset')
 img_dir = os.path.join(path_file, 'data_img')
 model_dir = os.path.join(path_file, 'model.h5')
 
-if not os.path.exists(img_dir):
-    os.mkdir(img_dir)
-    for int_class in range(len(list_classes)) :
-        path_input = os.path.join(data_dir, list_classes[int_class])
-        path_output = os.path.join(img_dir, str(int_class))
-        os.mkdir(path_output)
-        
-        glob_wav = glob.glob(path_input + "/*.wav")
-        cpt = 0
-        for sound in glob_wav:
-            #Build array image
-            wave_data, wave_rate = librosa.load(sound)
+if os.path.exists(data_dir):
+    if not os.path.exists(img_dir):
+        os.mkdir(img_dir)
+        for int_class in range(len(list_classes)) :
+            path_input = os.path.join(data_dir, list_classes[int_class])
+            path_output = os.path.join(img_dir, str(int_class))
+            os.mkdir(path_output)
             
-            # cut after 5s
-            if wave_data.shape[0]<5*wave_rate:
-              wave_data=np.pad(wave_data,int(np.ceil((5*wave_rate-wave_data.shape[0])/2)),mode='reflect')
-            else:
-              wave_data=wave_data[:5*wave_rate]
-            
-            
-            #The variable below is chosen mainly to create a 216x216 image
-            cptNom = str(cpt)
-            mel = librosa.feature.melspectrogram(wave_data, sr=wave_rate, n_mels=n_mels)
-            db = librosa.power_to_db(mel)
-            normalised_db = sklearn.preprocessing.minmax_scale(db)
-            
-            """
-            First test, acc not well
-            cmap = plt.get_cmap('hot')
-            librosa.display.specshow(normalised_db, cmap=cmap)
-            file_temp = path_output + "/" + "temp.png"
-            plt.savefig(file_temp, transparent=True)
-            cvimage = cv2.imread(file_temp)
-            img_gray = cv2.cvtColor(cvimage, cv2.COLOR_BGR2GRAY)
-            cv2.imwrite(path_output + "/" + list_classes[int_class] + cptNom + ".png", img_gray)
-            
-            os.remove(file_temp)
-            """
-
-            db_array = (np.asarray(normalised_db)*255).astype(np.uint8)
-
-            db_image =  Image.fromarray(np.array([db_array, db_array, db_array]).T)
-            db_image.save(path_output + "/" + list_classes[int_class] + cptNom + ".png")
-
-            cpt += 1
+            glob_wav = glob.glob(path_input + "/*.wav")
+            cpt = 0
+            for sound in glob_wav:
+                #Build array image
+                wave_data, wave_rate = librosa.load(sound)
+                
+                # cut after 5s
+                if wave_data.shape[0]<5*wave_rate:
+                  wave_data=np.pad(wave_data,int(np.ceil((5*wave_rate-wave_data.shape[0])/2)),mode='reflect')
+                else:
+                  wave_data=wave_data[:5*wave_rate]
+                
+                
+                #The variable below is chosen mainly to create a 216x216 image
+                cptNom = str(cpt)
+                mel = librosa.feature.melspectrogram(wave_data, sr=wave_rate, n_mels=n_mels)
+                db = librosa.power_to_db(mel)
+                normalised_db = sklearn.preprocessing.minmax_scale(db)
+                
+                """
+                First test, acc not well
+                cmap = plt.get_cmap('hot')
+                librosa.display.specshow(normalised_db, cmap=cmap)
+                file_temp = path_output + "/" + "temp.png"
+                plt.savefig(file_temp, transparent=True)
+                cvimage = cv2.imread(file_temp)
+                img_gray = cv2.cvtColor(cvimage, cv2.COLOR_BGR2GRAY)
+                cv2.imwrite(path_output + "/" + list_classes[int_class] + cptNom + ".png", img_gray)
+                
+                os.remove(file_temp)
+                """
+    
+                db_array = (np.asarray(normalised_db)*255).astype(np.uint8)
+    
+                db_image =  Image.fromarray(np.array([db_array, db_array, db_array]).T)
+                db_image.save(path_output + "/" + list_classes[int_class] + cptNom + ".png")
+    
+                cpt += 1
 
 # If test train folder dont exist
 if not os.path.exists(output_dir):
