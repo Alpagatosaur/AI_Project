@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Create a model predicts color sprectrogram
 import os
 import glob
 import sklearn
