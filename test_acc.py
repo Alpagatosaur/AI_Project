@@ -13,6 +13,17 @@ model_dir = os.path.join(path_file, 'model.h5')
 output_dir = os.path.join(path_file, 'train_test')
 
 
+
+def getTFLITE(model):
+    # Convert the model
+    converter = lite.TFLiteConverter.from_keras_model(model)
+    tflite_model = converter.convert()
+
+    # Save the model TFLite
+    with open('model.tflite', 'wb') as f:
+      f.write(tflite_model)
+
+
 # Load test dataset
 test_dir = os.path.join(output_dir, 'val')
 list_test_img = glob.glob(test_dir + "/*/*.png")
@@ -22,6 +33,7 @@ test_img, test_labels = load_img(list_test_img)
 model = load_model(model_dir)
 
 # Load the TFLite model and allocate tensors.
+getTFLITE(model)
 interpreter = lite.Interpreter(model_path="model.tflite")
 interpreter.allocate_tensors()
 
@@ -47,27 +59,28 @@ for i in range(nb_test_img):
     interpreter.invoke()
     output_tflite = interpreter.get_tensor(output_details[0]['index'])
     
-    #output_model = model.predict(img_32)
+    output_model = model.predict(img_32)
 
     if output_tflite[0].argmax() == label:
         avg_acc_tflite += 1
     
 
-    """if output_model[0].argmax() == label:
-        avg_acc_model += 1"""
-    
+    if output_model[0].argmax() == label:
+        avg_acc_model += 1
+    """
     print(" OUTPUT TFLITE ", output_tflite[0].argmax(), max(output_tflite[0]))
-    #{ print(" OUTPUT MODEL  ", output_model[0].argmax(), max(output_model[0]))
+    print(" OUTPUT MODEL  ", output_model[0].argmax(), max(output_model[0]))
     print(" LABEL  ", label)
     print("_______________________\n")
+    """
 
 
-print(f'\nOUTPUT AVERAGE ACCURACY {100*avg_acc_tflite/nb_test_img:.2f} %')
-# print(f'OUTPUT AVERAGE ACCURACY MODEL  {100*avg_acc_model/nb_test_img:.2f} %')
+print(f'\nOUTPUT AVERAGE ACCURACY TFLITE {100*avg_acc_tflite/nb_test_img:.2f} %')
+print(f'OUTPUT AVERAGE ACCURACY MODEL  {100*avg_acc_model/nb_test_img:.2f} %')
 print("___________________________")
 
 """
-OUTPUT AVERAGE ACCURACY TFLITE 78.00 %
-OUTPUT AVERAGE ACCURACY MODEL  78.00 %
+OUTPUT AVERAGE ACCURACY TFLITE 80.00 %
+OUTPUT AVERAGE ACCURACY MODEL  80.00 %
 ___________________________
 """
