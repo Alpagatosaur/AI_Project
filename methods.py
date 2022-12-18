@@ -47,7 +47,7 @@ def load_img(list_path):
     return mixing(list_images, list_labels)
 
 # Train model
-def train_model(model, train_img, train_labels):
+def train_model(model, train_img, train_labels, name_model="model"):
     adam = Adam(lr=learning_rate)
     # SparseCategoricalCrossentropy == to provide labels as integers
     model.compile(optimizer=adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -56,7 +56,7 @@ def train_model(model, train_img, train_labels):
                         batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=0.2, shuffle = True, verbose=1)
 
     # model.summary()
-    model.save('model.h5')
+    model.save(name_model + '.h5')
 
     # Show evolution of accurracy/ loss depending on epoch
     fig, (ax0, ax1) = plt.subplots(2, sharex=True)

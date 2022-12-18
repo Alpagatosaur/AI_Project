@@ -52,17 +52,17 @@ for i in range(nb_test_img):
     if output_tflite[0].argmax() == label:
         avg_acc_tflite += 1
     
-    """
-    if output_model[0].argmax() == label:
-        avg_acc_model += 1
+
+    """if output_model[0].argmax() == label:
+        avg_acc_model += 1"""
     
     print(" OUTPUT TFLITE ", output_tflite[0].argmax(), max(output_tflite[0]))
-    print(" OUTPUT MODEL  ", output_model[0].argmax(), max(output_model[0]))
+    #{ print(" OUTPUT MODEL  ", output_model[0].argmax(), max(output_model[0]))
     print(" LABEL  ", label)
     print("_______________________\n")
-    """
 
-print(f'\nOUTPUT AVERAGE ACCURACY TFLITE {100*avg_acc_tflite/nb_test_img:.2f} %')
+
+print(f'\nOUTPUT AVERAGE ACCURACY {100*avg_acc_tflite/nb_test_img:.2f} %')
 # print(f'OUTPUT AVERAGE ACCURACY MODEL  {100*avg_acc_model/nb_test_img:.2f} %')
 print("___________________________")
 
