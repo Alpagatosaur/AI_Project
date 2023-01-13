@@ -134,5 +134,7 @@ Dataset/*
 
 # Model
 *.h5
+*.tflite
 
+# RES IMG
 *.png
